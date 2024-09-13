@@ -50,6 +50,7 @@ public class ScyllaStreamingChangeEventSource implements StreamingChangeEventSou
                 .withConsumer(changeConsumer)
                 .withQueryTimeWindowSizeMs(configuration.getQueryTimeWindowSizeMs())
                 .withConfidenceWindowSizeMs(configuration.getConfidenceWindowSizeMs())
+                .withCustomMinimumWindowStart(configuration.getCustomMinimumWindowStart())
                 .build();
         Worker worker = new Worker(workerConfiguration);
         try {
