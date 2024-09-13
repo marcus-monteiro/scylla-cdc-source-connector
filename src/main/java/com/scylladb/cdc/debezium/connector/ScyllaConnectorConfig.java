@@ -167,6 +167,19 @@ public class ScyllaConnectorConfig extends CommonConnectorConfig {
             "driver's QueryOptions before session construction. Set this to an explicit value if " +
             "experiencing too high memory usage.");
 
+    public static final Field CUSTOM_WINDOW_START = Field.create("scylla.custom.window.start")
+            .withDisplayName("Custom Window Start (seconds)")
+            .withType(ConfigDef.Type.INT)
+            .withWidth(ConfigDef.Width.MEDIUM)
+            .withDefault(0)
+            .withImportance(ConfigDef.Importance.LOW)
+            .withValidation(Field::isNonNegativeInteger)
+            .withDescription("The start of the custom window in seconds. This is used to set the start of the " +
+                 "window for the connector to read from the table with the _scylla_cdc_log prefix. If not set, " +
+                 "the connector will use the table's TTL rule or start reading from date(0). With this custom window, " +
+                 "the user can specify how many seconds to read from the table instead of reading the entire table " +
+                 "or starting from the last TTL.");
+
     public static final Field LOCAL_DC_NAME = Field.create("scylla.local.dc")
             .withDisplayName("Local DC Name")
             .withType(ConfigDef.Type.STRING)
@@ -204,7 +217,7 @@ public class ScyllaConnectorConfig extends CommonConnectorConfig {
             CommonConnectorConfig.CONFIG_DEFINITION.edit()
                     .name("Scylla")
                     .type(CLUSTER_IP_ADDRESSES, USER, PASSWORD, LOGICAL_NAME, CONSISTENCY_LEVEL, QUERY_OPTIONS_FETCH_SIZE, LOCAL_DC_NAME, SSL_ENABLED, SSL_PROVIDER, SSL_TRUSTSTORE_PATH, SSL_TRUSTSTORE_PASSWORD, SSL_KEYSTORE_PATH, SSL_KEYSTORE_PASSWORD,SSL_CIPHER_SUITES, SSL_OPENSLL_KEYCERTCHAIN, SSL_OPENSLL_PRIVATEKEY)
-                    .connector(QUERY_TIME_WINDOW_SIZE, CONFIDENCE_WINDOW_SIZE, PREIMAGES_ENABLED)
+                    .connector(QUERY_TIME_WINDOW_SIZE, CONFIDENCE_WINDOW_SIZE, PREIMAGES_ENABLED, CUSTOM_WINDOW_START)
                     .events(TABLE_NAMES)
                     .excluding(Heartbeat.HEARTBEAT_INTERVAL).events(CUSTOM_HEARTBEAT_INTERVAL)
                     // Exclude some Debezium options, which are not applicable/not supported by
@@ -290,6 +303,10 @@ public class ScyllaConnectorConfig extends CommonConnectorConfig {
 
     public long getConfidenceWindowSizeMs() {
         return config.getInteger(ScyllaConnectorConfig.CONFIDENCE_WINDOW_SIZE);
+    }
+
+    public long getCustomWindowStart() {
+        return config.getInteger(ScyllaConnectorConfig.CUSTOM_WINDOW_START);
     }
 
     public long getHeartbeatIntervalMs() {
